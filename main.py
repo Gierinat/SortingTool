@@ -2,9 +2,9 @@ import argparse
 
 # Argument parsing
 parser = argparse.ArgumentParser()
-parser.add_argument("-dataType", choices=["long", "line", "word"])
+parser.add_argument("-dataType", choices=["long", "line", "word"], default="word")
 args = parser.parse_args()
-calculation_flag = args.dataType if args.dataType else "word"
+calculation_flag = args.dataType
 data = []
 
 
@@ -31,17 +31,18 @@ elif calculation_flag == "word":
 else:
     get_input("line")
 
-print(data)
 # Calculations
 total = len(data)
 greatest = max(data) if calculation_flag == "long" else max(data, key=len)
 greatest_occurrences = data.count(greatest)
+percentage_occurrence = int(greatest_occurrences / total * 100)
 
 # Result presentation
 topic = "numbers" if calculation_flag == "long" else "lines" if calculation_flag == "line" else "words"
 top = "greatest number" if calculation_flag == "long" else "longest line" if calculation_flag == "line"\
     else "longest word"
+is_line = "\n" if calculation_flag == "line" else ""
 result_string = f"""Total {topic}: {total}.
-The {top}: {greatest} ({greatest_occurrences} time(s))."""
+The {top}: {is_line}{greatest}{is_line} ({greatest_occurrences} time(s), {percentage_occurrence}%)."""
 
 print(result_string)
