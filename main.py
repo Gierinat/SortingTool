@@ -3,10 +3,14 @@ import argparse
 # Argument parsing
 parser = argparse.ArgumentParser()
 parser.add_argument("-dataType", choices=["long", "line", "word"], default="word")
-parser.add_argument("-sortIntegers", action="store_true")
+parser.add_argument("-sortingType", choices=["natural", "byCount"], default="natural")
 args = parser.parse_args()
+
+# Params
 data_type = args.dataType
-sort_int = args.sortIntegers
+sorting_type = args.sortingType
+
+
 data = []
 
 
@@ -26,10 +30,6 @@ def get_input(input_type):
             break
 
 
-if sort_int:
-    data_type = "long"
-
-
 if data_type == "long":
     get_input("long")
 elif data_type == "word":
@@ -45,22 +45,23 @@ percentage_occurrence = int(greatest_occurrences / total * 100)
 
 
 # Result presentation
+def sort_data(dat, sort):
+
+    # sorted_data = sorted(data.copy())
+    # sorted_data = map(str, sorted_data)
+    # join = " ".join(sorted_data)
+    pass
+
+
 def generate_result():
     result_string = ""
-    if not sort_int:
-        topic = "numbers" if data_type == "long" else "lines" if data_type == "line" else "words"
-        top = "greatest number" if data_type == "long" else "longest line" if data_type == "line" \
-            else "longest word"
-        is_line = "\n" if data_type == "line" else ""
+    topic = "numbers" if data_type == "long" else "lines" if data_type == "line" else "words"
+    is_line = "\n" if data_type == "line" else ""
 
-        result_string = f"""Total {topic}: {total}.
-The {top}: {is_line}{greatest}{is_line} ({greatest_occurrences} time(s), {percentage_occurrence}%)."""
-    else:
-        sorted_data = sorted(data.copy())
-        sorted_data = map(str, sorted_data)
-        join = " ".join(sorted_data)
-        result_string = f"""Total numbers: {total}.
-Sorted data: {join}"""
+    sort_data(data, sorting_type)
+
+    result_string = f"""Total {topic}: {total}.
+Sorted data: """
 
     return result_string
 
