@@ -46,11 +46,15 @@ percentage_occurrence = int(greatest_occurrences / total * 100)
 
 # Result presentation
 def sort_data(dat, sort):
-
-    # sorted_data = sorted(data.copy())
-    # sorted_data = map(str, sorted_data)
-    # join = " ".join(sorted_data)
-    pass
+    if sort == "natural" and data_type in ("long", "word"):
+        sorted_data = sorted(dat)
+        sorted_data = map(str, sorted_data)
+        join_result = " ".join(sorted_data)
+        return join_result
+    elif sort == "natural" and data_type == "line":
+        sorted_data = sorted(dat, key=len, reverse=True)
+        join_result = "\n".join(sorted_data)
+        return join_result
 
 
 def generate_result():
@@ -58,10 +62,10 @@ def generate_result():
     topic = "numbers" if data_type == "long" else "lines" if data_type == "line" else "words"
     is_line = "\n" if data_type == "line" else ""
 
-    sort_data(data, sorting_type)
+    sorted_data = sort_data(data, sorting_type)
 
     result_string = f"""Total {topic}: {total}.
-Sorted data: """
+Sorted data: {is_line}{sorted_data}"""
 
     return result_string
 
