@@ -2,16 +2,33 @@ import argparse
 
 # Argument parsing
 parser = argparse.ArgumentParser()
-parser.add_argument("-dataType", choices=["long", "line", "word"], default="word")
-parser.add_argument("-sortingType", choices=["natural", "byCount"], default="natural")
-args = parser.parse_args()
+parser.add_argument("-dataType", choices=["long", "line", "word"], default="word", nargs='?')
+parser.add_argument("-sortingType", choices=["natural", "byCount"], default="natural", nargs='?')
+args, unknown_args = parser.parse_known_args()
+data = []
+arg
+
+class ArgException(Exception):
+    def __init__(self, arg):
+        self.message = f"No {arg} type defined!"
+        super().__init__(self.message)
+
 
 # Params
-data_type = args.dataType
-sorting_type = args.sortingType
+try:
+    data_type = args.dataType
+    sorting_type = args.sortingType
+    if not data_type:
+        raise ArgException("data")
+    if not sorting_type:
+        raise ArgException("sorting")
 
+    if unknown_args:
+        for arg in unknown_args:
+            print(f'"{arg}" is not a valid parameter. It will be skipped.')
 
-data = []
+except ArgException as e:
+    print(e)
 
 
 def get_input(input_type):
@@ -28,17 +45,6 @@ def get_input(input_type):
                     data.append(line)
         except EOFError:
             break
-
-
-if data_type == "long":
-    get_input("long")
-elif data_type == "word":
-    get_input("word")
-else:
-    get_input("line")
-
-# Calculations
-total = len(data)
 
 
 # Result presentation
@@ -68,6 +74,7 @@ def sort_data(dat, sort):
 
 def generate_result():
     result_string = ""
+    total = len(data)
     topic = "numbers" if data_type == "long" else "lines" if data_type == "line" else "words"
     is_line = "\n" if data_type == "line" else ""
 
@@ -83,4 +90,16 @@ Sorted data: {is_line}{sorted_data}"""
     return result_string
 
 
-print(generate_result())
+def main():
+    if data_type == "long":
+        get_input("long")
+    elif data_type == "word":
+        get_input("word")
+    else:
+        get_input("line")
+
+    print(generate_result())
+
+
+if __name__ == "__main__":
+    main()
