@@ -4,51 +4,92 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("-dataType", choices=["long", "line", "word"], default="word", nargs='?')
 parser.add_argument("-sortingType", choices=["natural", "byCount"], default="natural", nargs='?')
+parser.add_argument("-inputFile", default="not_provided", nargs="?")
+parser.add_argument("-outputFile", default="not_provided", nargs="?")
 args, unknown_args = parser.parse_known_args()
 data = []
-arg
+
 
 class ArgException(Exception):
     def __init__(self, arg):
-        self.message = f"No {arg} type defined!"
+        if arg == "data" or arg == "sorting":
+            arg = arg + " type"
+        self.message = f"No {arg} defined!"
         super().__init__(self.message)
 
 
-# Params
-try:
-    data_type = args.dataType
-    sorting_type = args.sortingType
-    if not data_type:
-        raise ArgException("data")
-    if not sorting_type:
-        raise ArgException("sorting")
+def validate_args():
+    global data_type, sorting_type, input_file, output_file
+    # Params
+    try:
+        data_type = args.dataType
+        sorting_type = args.sortingType
+        input_file = args.inputFile
+        output_file = args.outputFile
+        if not data_type:
+            raise ArgException("data")
+        if not sorting_type:
+            raise ArgException("sorting")
+        if not input_file or not output_file:
+            raise ArgException("filename")
 
-    if unknown_args:
-        for arg in unknown_args:
-            print(f'"{arg}" is not a valid parameter. It will be skipped.')
+        if unknown_args:
+            for arg in unknown_args:
+                print(f'"{arg}" is not a valid parameter. It will be skipped.')
 
-except ArgException as e:
-    print(e)
+        return 1
+
+    except ArgException as e:
+        print(e)
+
+    return 0
 
 
-def get_input(input_type):
-    while True:
-        try:
+def get_input(input_type, input_file):
+    long_wrong = []
+
+    if input_file not in (None, "not_provided"):
+        file = open(input_file, "rt")
+        for line in file:
             if input_type == "long":
-                for num in input().split():
-                    data.append(int(num))
+                for num in line.split():
+                    try:
+                        data.append(int(num))
+                    except ValueError:
+                        long_wrong.append(num)
             elif input_type == "word":
-                for word in input().split():
+                for word in line.split():
                     data.append(word)
             else:
-                for line in input().splitlines():
-                    data.append(line)
-        except EOFError:
-            break
+                for ln in line.splitlines():
+                    data.append(ln)
+        file.close()
+    else:
+        while True:
+            try:
+                if input_type == "long":
+                    for num in input().split():
+                        try:
+                            data.append(int(num))
+                        except ValueError:
+                            long_wrong.append(num)
+                elif input_type == "word":
+                    for word in input().split():
+                        data.append(word)
+                else:
+                    for line in input().splitlines():
+                        data.append(line)
+
+            except EOFError:
+                break
+
+    if long_wrong:
+        for item in long_wrong:
+            print(f'"{item}" is not a long. It will be skipped.')
 
 
 # Result presentation
-def sort_data(dat, sort):
+def sort_data(dat, sort, total):
     if sort == "natural" and data_type in ("long", "word"):
         sorted_data = sorted(dat)
         sorted_data = map(str, sorted_data)
@@ -72,13 +113,13 @@ def sort_data(dat, sort):
         return result
 
 
-def generate_result():
+def generate_result(output_file):
     result_string = ""
     total = len(data)
     topic = "numbers" if data_type == "long" else "lines" if data_type == "line" else "words"
     is_line = "\n" if data_type == "line" else ""
 
-    sorted_data = sort_data(data, sorting_type)
+    sorted_data = sort_data(data, sorting_type, total)
 
     if sorting_type == "natural":
         result_string = f"""Total {topic}: {total}
@@ -87,18 +128,20 @@ Sorted data: {is_line}{sorted_data}"""
         result_string = f"""Total {topic}: {total}.
 {sorted_data}"""
 
-    return result_string
+    if output_file not in (None, "not_provided"):
+        file = open(output_file, 'w')
+        file.write(result_string)
+        file.close()
+    else:
+        return result_string
 
 
 def main():
-    if data_type == "long":
-        get_input("long")
-    elif data_type == "word":
-        get_input("word")
-    else:
-        get_input("line")
-
-    print(generate_result())
+    if validate_args():
+        get_input(data_type, input_file)
+        res = generate_result(output_file)
+        if res:
+            print(res)
 
 
 if __name__ == "__main__":
